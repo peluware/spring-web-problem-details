@@ -148,7 +148,6 @@ public class DefaultProblemDetailsExceptionHandler extends ResponseEntityExcepti
 
         addValidationErrors(body, ex.getConstraintViolations(), violation -> {
             log.debug("Property path: {}, Class bean {}", violation.getPropertyPath(), violation.getRootBeanClass());
-            violation.getPropertyPath();
             var path = violation.getPropertyPath().toString();
             return new FieldMessage(path, violation.getMessage());
         });

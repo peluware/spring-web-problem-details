@@ -30,56 +30,37 @@ class TestControllerProblemDetailsTest {
 
     @Test
     void errorWithException() throws Exception {
-
-        var result = mockMvc.perform(get("/bad-request"))
-                .andExpect(status().isBadRequest())
-                .andReturn();
-
-        System.out.println(result.getResponse().getContentAsString());
+        mockMvc.perform(get("/bad-request"))
+                .andExpect(status().isBadRequest());
     }
 
     @Test
     void errorWithRuntimeException() throws Exception {
-
-        var result = mockMvc.perform(get("/bad-request-runtime"))
-                .andExpect(status().isBadRequest())
-                .andReturn();
-
-        System.out.println(result.getResponse().getContentAsString());
+        mockMvc.perform(get("/bad-request-runtime"))
+                .andExpect(status().isBadRequest());
     }
 
     @Test
     void errorWithExceptionByExtension() throws Exception {
+        mockMvc.perform(get("/bad-request-by-extension"))
+                .andExpect(status().isBadRequest());
 
-        var result = mockMvc.perform(get("/bad-request-by-extension"))
-                .andExpect(status().isBadRequest())
-                .andReturn();
-
-        System.out.println(result.getResponse().getContentAsString());
     }
 
     @Test
     void endpointWithParam() throws Exception {
-
-        var result = mockMvc.perform(get("/endpoint-with-param").param("param", "io/github/luidmidev/springframework/web/problemdetails/test"))
-                .andExpect(status().isOk())
-                .andReturn();
-
-        System.out.println(result.getResponse().getContentAsString());
+        mockMvc.perform(get("/endpoint-with-param").param("param", "io/github/luidmidev/springframework/web/problemdetails/test"))
+                .andExpect(status().isOk());
     }
 
     @Test
     void endpointWithParamWithoutParam() throws Exception {
-
-        var result = mockMvc.perform(get("/endpoint-with-param")
+        mockMvc.perform(get("/endpoint-with-param")
                         .header("Accept-Language", "es")
                         .accept(MediaType.APPLICATION_JSON)
                 )
                 .andExpect(status().isBadRequest())
-                .andExpect(MockMvcResultMatchers.jsonPath("$.detail").value(Matchers.containsString("param")))
-                .andReturn();
-
-        System.out.println("Response: " + result.getResponse().getContentAsString());
+                .andExpect(MockMvcResultMatchers.jsonPath("$.detail").value(Matchers.containsString("param")));
     }
 
     @Test
@@ -94,15 +75,11 @@ class TestControllerProblemDetailsTest {
                 MediaType.TEXT_PLAIN_VALUE,
                 "Contenido del archivo".getBytes()
         );
-
-        var result = mockMvc.perform(
+        mockMvc.perform(
                         multipart("/request-parts")
                                 .part(part1, part2)
                                 .file(part3))
-                .andExpect(status().isOk())
-                .andReturn();
-
-        System.out.println(result.getResponse().getContentAsString());
+                .andExpect(status().isOk());
 
     }
 }
