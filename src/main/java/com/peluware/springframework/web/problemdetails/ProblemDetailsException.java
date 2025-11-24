@@ -1,6 +1,5 @@
 package com.peluware.springframework.web.problemdetails;
 
-import lombok.Getter;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.ProblemDetail;
 
@@ -9,7 +8,6 @@ import org.springframework.http.ProblemDetail;
  * exception will be caught by the {@link DefaultProblemDetailsExceptionHandler} and the response will be
  * built based on the {@link ProblemDetail} object.
  */
-@Getter
 public class ProblemDetailsException extends RuntimeException {
 
 
@@ -25,6 +23,7 @@ public class ProblemDetailsException extends RuntimeException {
 
     /**
      * Create a new instance of the exception with the given {@link ProblemDetail} object.
+     *
      * @param body the problem detail object to be used as the response body.
      */
     public ProblemDetailsException(ProblemDetail body) {
@@ -33,7 +32,8 @@ public class ProblemDetailsException extends RuntimeException {
 
     /**
      * Create a new instance of the exception with the given {@link ProblemDetail} object and
-     * @param body the problem detail object to be used as the response body.
+     *
+     * @param body    the problem detail object to be used as the response body.
      * @param headers the headers to be used in the response.
      */
     public ProblemDetailsException(ProblemDetail body, HttpHeaders headers) {
@@ -44,6 +44,7 @@ public class ProblemDetailsException extends RuntimeException {
 
     /**
      * Add an extension attribute to the response body before throwing the exception.
+     *
      * @param field the field name.
      * @param value the field value.
      * @return the exception instance.
@@ -51,6 +52,14 @@ public class ProblemDetailsException extends RuntimeException {
     public ProblemDetailsException extension(String field, String value) {
         body.setProperty(field, value);
         return this;
+    }
+
+    public HttpHeaders getHeaders() {
+        return headers;
+    }
+
+    public ProblemDetail getBody() {
+        return body;
     }
 
 }

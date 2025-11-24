@@ -1,7 +1,6 @@
 package com.peluware.springframework.web.problemdetails;
 
-import lombok.Getter;
-import org.jetbrains.annotations.NotNull;
+import org.jspecify.annotations.NonNull;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.HttpStatusCode;
@@ -21,7 +20,6 @@ import static org.springframework.http.HttpStatus.BAD_GATEWAY;
  * Model class for API error response with formatt Problem Details for HTTP APIs (RFC 9457)
  */
 @SuppressWarnings("unused")
-@Getter
 public class ProblemDetails {
 
     private final HttpStatusCode status;
@@ -40,23 +38,50 @@ public class ProblemDetails {
 
     /**
      * Create a new instance of {@link ProblemDetails} with the specified status
+     *
      * @param status the HTTP status code
      */
     public ProblemDetails(HttpStatusCode status) {
         this.status = status;
     }
 
+    public HttpStatusCode getStatus() {
+        return status;
+    }
+
+    public HttpHeaders getHeaders() {
+        return headers;
+    }
+
+    public String getTitle() {
+        return title;
+    }
+
+    public URI getType() {
+        return type;
+    }
+
+    public URI getInstance() {
+        return instance;
+    }
+
+    public Map<String, Object> getExtensions() {
+        return extensions;
+    }
+
     /**
      * Create a new instance of {@link ProblemDetails} with the specified status
+     *
      * @param httpStatusCode the HTTP status code
      * @return a new instance of {@link ProblemDetails}
      */
-    public static ProblemDetails status(@NotNull HttpStatusCode httpStatusCode) {
+    public static ProblemDetails status(@NonNull HttpStatusCode httpStatusCode) {
         return new ProblemDetails(httpStatusCode);
     }
 
     /**
      * Create a new instance of {@link ProblemDetails} with the specified status
+     *
      * @param httpStatusCode the HTTP status code
      * @return a new instance of {@link ProblemDetails}
      */
@@ -66,6 +91,7 @@ public class ProblemDetails {
 
     /**
      * Assign a title to the problem detail and return the current instance
+     *
      * @param title the title of the error
      * @return the current instance
      */
@@ -76,6 +102,7 @@ public class ProblemDetails {
 
     /**
      * Assign a type to the problem detail and return the current instance
+     *
      * @param type the type of the error
      * @return the current instance
      */
@@ -86,6 +113,7 @@ public class ProblemDetails {
 
     /**
      * Assign a type to the problem detail and return the current instance
+     *
      * @param type the type of the error
      * @return the current instance
      */
@@ -95,6 +123,7 @@ public class ProblemDetails {
 
     /**
      * Assign an instance to the problem detail and return the current instance
+     *
      * @param instance the instance of the error
      * @return the current instance
      */
@@ -105,6 +134,7 @@ public class ProblemDetails {
 
     /**
      * Assign an instance to the problem detail and return the current instance
+     *
      * @param instance the instance of the error
      * @return the current instance
      */
@@ -114,6 +144,7 @@ public class ProblemDetails {
 
     /**
      * Assign extensions attributes to the problem detail and return the current instance
+     *
      * @param extensions the extensions attribute of the error
      * @return the current instance
      */
@@ -124,7 +155,8 @@ public class ProblemDetails {
 
     /**
      * Add an extension attribute to the problem detail and return the current instance
-     * @param key the key of the extension attribute
+     *
+     * @param key   the key of the extension attribute
      * @param value the value of the extension attribute
      * @return the current instance
      */
@@ -135,7 +167,8 @@ public class ProblemDetails {
 
     /**
      * Add a header to the response and return the current instance
-     * @param headerName the name of the header
+     *
+     * @param headerName    the name of the header
      * @param headersValues the values of the header
      * @return the current instance
      */
@@ -146,17 +179,19 @@ public class ProblemDetails {
 
     /**
      * Add a header to the response and return the current instance
+     *
      * @param headers the headers to add
      * @return the current instance
      */
-    public ProblemDetails headers(MultiValueMap<String, String> headers) {
-        this.headers.addAll(headers);
+    public ProblemDetails headers(MultiValueMap<@NonNull String, String> headers) {
+        this.headers.addAll(new HttpHeaders(headers));
         return this;
     }
 
 
     /**
      * Create a new instance of {@link ProblemDetailsException} with the current state of the {@link ProblemDetails}
+     *
      * @param detail the detail of the error
      * @return a new instance of {@link ProblemDetailsException}
      */
@@ -167,6 +202,7 @@ public class ProblemDetails {
 
     /**
      * Create a new {@link ProblemDetail} with the current state of the {@link ProblemDetails}
+     *
      * @param detail the detail of the error
      * @return a new instance of {@link ProblemDetail}
      */
@@ -181,7 +217,8 @@ public class ProblemDetails {
 
     /**
      * Shorthand to create a new instance of {@link ProblemDetailsException} with the specified title, detail and status
-     * @param title the title of the error
+     *
+     * @param title  the title of the error
      * @param detail the detail of the error
      * @param status the HTTP status code
      * @return a new instance of {@link ProblemDetailsException}
@@ -192,6 +229,7 @@ public class ProblemDetails {
 
     /**
      * Shorthand to create a new instance of {@link ProblemDetailsException} with the specified detail and status
+     *
      * @param detail the detail of the error
      * @param status the HTTP status code
      * @return a new instance of {@link ProblemDetailsException}
@@ -202,7 +240,8 @@ public class ProblemDetails {
 
     /**
      * Shorthand to create a new instance of {@link ProblemDetailsException} with the specified title, detail and status
-     * @param title the title of the error
+     *
+     * @param title  the title of the error
      * @param detail the detail of the error
      * @return a new instance of {@link ProblemDetailsException}
      */
@@ -212,7 +251,8 @@ public class ProblemDetails {
 
     /**
      * Shorthand to create a new instance of {@link ProblemDetailsException} with {@link HttpStatus#BAD_REQUEST} status and the specified title and detail
-     * @param title the title of the error
+     *
+     * @param title  the title of the error
      * @param detail the detail of the error
      * @return a new instance of {@link ProblemDetailsException}
      */
@@ -222,7 +262,8 @@ public class ProblemDetails {
 
     /**
      * Shorthand to create a new instance of {@link ProblemDetailsException} with {@link HttpStatus#UNAUTHORIZED} status and the specified title and detail
-     * @param title the title of the error
+     *
+     * @param title  the title of the error
      * @param detail the detail of the error
      * @return a new instance of {@link ProblemDetailsException}
      */
@@ -232,7 +273,8 @@ public class ProblemDetails {
 
     /**
      * Shorthand to create a new instance of {@link ProblemDetailsException} with {@link HttpStatus#FORBIDDEN} status and the specified title and detail
-     * @param title the title of the error
+     *
+     * @param title  the title of the error
      * @param detail the detail of the error
      * @return a new instance of {@link ProblemDetailsException}
      */
@@ -242,7 +284,8 @@ public class ProblemDetails {
 
     /**
      * Shorthand to create a new instance of {@link ProblemDetailsException} with {@link HttpStatus#CONFLICT} status and the specified title and detail
-     * @param title the title of the error
+     *
+     * @param title  the title of the error
      * @param detail the detail of the error
      * @return a new instance of {@link ProblemDetailsException}
      */
@@ -252,7 +295,8 @@ public class ProblemDetails {
 
     /**
      * Shorthand to create a new instance of {@link ProblemDetailsException} with {@link HttpStatus#PRECONDITION_FAILED} status and the specified title and detail
-     * @param title the title of the error
+     *
+     * @param title  the title of the error
      * @param detail the detail of the error
      * @return a new instance of {@link ProblemDetailsException}
      */
@@ -262,7 +306,8 @@ public class ProblemDetails {
 
     /**
      * Shorthand to create a new instance of {@link ProblemDetailsException} with {@link HttpStatus#PRECONDITION_REQUIRED} status and the specified title and detail
-     * @param title the title of the error
+     *
+     * @param title  the title of the error
      * @param detail the detail of the error
      * @return a new instance of {@link ProblemDetailsException}
      */
@@ -272,7 +317,8 @@ public class ProblemDetails {
 
     /**
      * Shorthand to create a new instance of {@link ProblemDetailsException} with {@link HttpStatus#TOO_MANY_REQUESTS} status and the specified title and detail
-     * @param title the title of the error
+     *
+     * @param title  the title of the error
      * @param detail the detail of the error
      * @return a new instance of {@link ProblemDetailsException}
      */
@@ -282,7 +328,8 @@ public class ProblemDetails {
 
     /**
      * Shorthand to create a new instance of {@link ProblemDetailsException} with {@link HttpStatus#INTERNAL_SERVER_ERROR} status and the specified title and detail
-     * @param title the title of the error
+     *
+     * @param title  the title of the error
      * @param detail the detail of the error
      * @return a new instance of {@link ProblemDetailsException}
      */
@@ -292,7 +339,8 @@ public class ProblemDetails {
 
     /**
      * Shorthand to create a new instance of {@link ProblemDetailsException} with {@link HttpStatus#NOT_IMPLEMENTED} status and the specified title and detail
-     * @param title the title of the error
+     *
+     * @param title  the title of the error
      * @param detail the detail of the error
      * @return a new instance of {@link ProblemDetailsException}
      */
@@ -302,7 +350,8 @@ public class ProblemDetails {
 
     /**
      * Shorthand to create a new instance of {@link ProblemDetailsException} with {@link HttpStatus#SERVICE_UNAVAILABLE} status and the specified title and detail
-     * @param title the title of the error
+     *
+     * @param title  the title of the error
      * @param detail the detail of the error
      * @return a new instance of {@link ProblemDetailsException}
      */
@@ -312,7 +361,8 @@ public class ProblemDetails {
 
     /**
      * Shorthand to create a new instance of {@link ProblemDetailsException} with {@link HttpStatus#GATEWAY_TIMEOUT} status and the specified title and detail
-     * @param title the title of the error
+     *
+     * @param title  the title of the error
      * @param detail the detail of the error
      * @return a new instance of {@link ProblemDetailsException}
      */
@@ -322,7 +372,8 @@ public class ProblemDetails {
 
     /**
      * Shorthand to create a new instance of {@link ProblemDetailsException} with {@link HttpStatus#BAD_GATEWAY} status and the specified title and detail
-     * @param title the title of the error
+     *
+     * @param title  the title of the error
      * @param detail the detail of the error
      * @return a new instance of {@link ProblemDetailsException}
      */
@@ -332,6 +383,7 @@ public class ProblemDetails {
 
     /**
      * Shorthand to create a new instance of {@link ProblemDetailsException} with {@link HttpStatus#NOT_FOUND} status and the specified detail
+     *
      * @param detail the detail of the error
      * @return a new instance of {@link ProblemDetailsException}
      */
@@ -341,6 +393,7 @@ public class ProblemDetails {
 
     /**
      * Shorthand to create a new instance of {@link ProblemDetailsException} with {@link HttpStatus#BAD_REQUEST} status and the specified detail
+     *
      * @param detail the detail of the error
      * @return a new instance of {@link ProblemDetailsException}
      */
@@ -350,6 +403,7 @@ public class ProblemDetails {
 
     /**
      * Shorthand to create a new instance of {@link ProblemDetailsException} with {@link HttpStatus#UNAUTHORIZED} status and the specified detail
+     *
      * @param detail the detail of the error
      * @return a new instance of {@link ProblemDetailsException}
      */
@@ -359,6 +413,7 @@ public class ProblemDetails {
 
     /**
      * Shorthand to create a new instance of {@link ProblemDetailsException} with {@link HttpStatus#FORBIDDEN} status and the specified detail
+     *
      * @param detail the detail of the error
      * @return a new instance of {@link ProblemDetailsException}
      */
@@ -368,6 +423,7 @@ public class ProblemDetails {
 
     /**
      * Shorthand to create a new instance of {@link ProblemDetailsException} with {@link HttpStatus#CONFLICT} status and the specified detail
+     *
      * @param detail the detail of the error
      * @return a new instance of {@link ProblemDetailsException}
      */
@@ -377,6 +433,7 @@ public class ProblemDetails {
 
     /**
      * Shorthand to create a new instance of {@link ProblemDetailsException} with {@link HttpStatus#PRECONDITION_FAILED} status and the specified detail
+     *
      * @param detail the detail of the error
      * @return a new instance of {@link ProblemDetailsException}
      */
@@ -386,6 +443,7 @@ public class ProblemDetails {
 
     /**
      * Shorthand to create a new instance of {@link ProblemDetailsException} with {@link HttpStatus#PRECONDITION_REQUIRED} status and the specified detail
+     *
      * @param detail the detail of the error
      * @return a new instance of {@link ProblemDetailsException}
      */
@@ -395,6 +453,7 @@ public class ProblemDetails {
 
     /**
      * Shorthand to create a new instance of {@link ProblemDetailsException} with {@link HttpStatus#TOO_MANY_REQUESTS} status and the specified detail
+     *
      * @param detail the detail of the error
      * @return a new instance of {@link ProblemDetailsException}
      */
@@ -404,6 +463,7 @@ public class ProblemDetails {
 
     /**
      * Shorthand to create a new instance of {@link ProblemDetailsException} with {@link HttpStatus#INTERNAL_SERVER_ERROR} status and the specified detail
+     *
      * @param detail the detail of the error
      * @return a new instance of {@link ProblemDetailsException}
      */
@@ -413,6 +473,7 @@ public class ProblemDetails {
 
     /**
      * Shorthand to create a new instance of {@link ProblemDetailsException} with {@link HttpStatus#NOT_IMPLEMENTED} status and the specified detail
+     *
      * @param detail the detail of the error
      * @return a new instance of {@link ProblemDetailsException}
      */
@@ -422,6 +483,7 @@ public class ProblemDetails {
 
     /**
      * Shorthand to create a new instance of {@link ProblemDetailsException} with {@link HttpStatus#SERVICE_UNAVAILABLE} status and the specified detail
+     *
      * @param detail the detail of the error
      * @return a new instance of {@link ProblemDetailsException}
      */
@@ -431,6 +493,7 @@ public class ProblemDetails {
 
     /**
      * Shorthand to create a new instance of {@link ProblemDetailsException} with {@link HttpStatus#GATEWAY_TIMEOUT} status and the specified detail
+     *
      * @param detail the detail of the error
      * @return a new instance of {@link ProblemDetailsException}
      */
@@ -440,6 +503,7 @@ public class ProblemDetails {
 
     /**
      * Shorthand to create a new instance of {@link ProblemDetailsException} with {@link HttpStatus#BAD_GATEWAY} status and the specified detail
+     *
      * @param detail the detail of the error
      * @return a new instance of {@link ProblemDetailsException}
      */
@@ -449,6 +513,7 @@ public class ProblemDetails {
 
     /**
      * Shorthand to create a new instance of {@link ProblemDetailsException} with {@link HttpStatus#NOT_FOUND} status and the default message
+     *
      * @return a new instance of {@link ProblemDetailsException}
      */
     public static ProblemDetailsException notFound() {
@@ -457,6 +522,7 @@ public class ProblemDetails {
 
     /**
      * Shorthand to create a new instance of {@link ProblemDetailsException} with {@link HttpStatus#BAD_REQUEST} status and the default message
+     *
      * @return a new instance of {@link ProblemDetailsException}
      */
     public static ProblemDetailsException badRequest() {
@@ -465,6 +531,7 @@ public class ProblemDetails {
 
     /**
      * Shorthand to create a new instance of {@link ProblemDetailsException} with {@link HttpStatus#UNAUTHORIZED} status and the default message
+     *
      * @return a new instance of {@link ProblemDetailsException}
      */
     public static ProblemDetailsException unauthorized() {
@@ -473,6 +540,7 @@ public class ProblemDetails {
 
     /**
      * Shorthand to create a new instance of {@link ProblemDetailsException} with {@link HttpStatus#FORBIDDEN} status and the default message
+     *
      * @return a new instance of {@link ProblemDetailsException}
      */
     public static ProblemDetailsException forbidden() {
@@ -481,6 +549,7 @@ public class ProblemDetails {
 
     /**
      * Shorthand to create a new instance of {@link ProblemDetailsException} with {@link HttpStatus#CONFLICT} status and the default message
+     *
      * @return a new instance of {@link ProblemDetailsException}
      */
     public static ProblemDetailsException conflict() {
@@ -489,6 +558,7 @@ public class ProblemDetails {
 
     /**
      * Shorthand to create a new instance of {@link ProblemDetailsException} with {@link HttpStatus#PRECONDITION_FAILED} status and the default message
+     *
      * @return a new instance of {@link ProblemDetailsException}
      */
     public static ProblemDetailsException preconditionFailed() {
@@ -497,6 +567,7 @@ public class ProblemDetails {
 
     /**
      * Shorthand to create a new instance of {@link ProblemDetailsException} with {@link HttpStatus#PRECONDITION_REQUIRED} status and the default message
+     *
      * @return a new instance of {@link ProblemDetailsException}
      */
     public static ProblemDetailsException preconditionRequired() {
@@ -505,6 +576,7 @@ public class ProblemDetails {
 
     /**
      * Shorthand to create a new instance of {@link ProblemDetailsException} with {@link HttpStatus#TOO_MANY_REQUESTS} status and the default message
+     *
      * @return a new instance of {@link ProblemDetailsException}
      */
     public static ProblemDetailsException tooManyRequests() {
@@ -513,6 +585,7 @@ public class ProblemDetails {
 
     /**
      * Shorthand to create a new instance of {@link ProblemDetailsException} with {@link HttpStatus#INTERNAL_SERVER_ERROR} status and the default message
+     *
      * @return a new instance of {@link ProblemDetailsException}
      */
     public static ProblemDetailsException internalServerError() {
@@ -521,6 +594,7 @@ public class ProblemDetails {
 
     /**
      * Shorthand to create a new instance of {@link ProblemDetailsException} with {@link HttpStatus#NOT_IMPLEMENTED} status and the default message
+     *
      * @return a new instance of {@link ProblemDetailsException}
      */
     public static ProblemDetailsException notImplemented() {
@@ -529,6 +603,7 @@ public class ProblemDetails {
 
     /**
      * Shorthand to create a new instance of {@link ProblemDetailsException} with {@link HttpStatus#SERVICE_UNAVAILABLE} status and the default message
+     *
      * @return a new instance of {@link ProblemDetailsException}
      */
     public static ProblemDetailsException serviceUnavailable() {
@@ -537,6 +612,7 @@ public class ProblemDetails {
 
     /**
      * Shorthand to create a new instance of {@link ProblemDetailsException} with {@link HttpStatus#GATEWAY_TIMEOUT} status and the default message
+     *
      * @return a new instance of {@link ProblemDetailsException}
      */
     public static ProblemDetailsException gatewayTimeout() {
@@ -545,6 +621,7 @@ public class ProblemDetails {
 
     /**
      * Shorthand to create a new instance of {@link ProblemDetailsException} with {@link HttpStatus#BAD_GATEWAY} status and the default message
+     *
      * @return a new instance of {@link ProblemDetailsException}
      */
     public static ProblemDetailsException badGateway() {

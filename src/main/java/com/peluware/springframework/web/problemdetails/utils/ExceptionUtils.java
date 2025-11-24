@@ -1,12 +1,15 @@
 package com.peluware.springframework.web.problemdetails.utils;
 
-import lombok.experimental.UtilityClass;
 
 import java.io.PrintWriter;
 import java.io.StringWriter;
 
-@UtilityClass
-public class ExceptionUtils {
+public final class ExceptionUtils {
+
+    private ExceptionUtils() {
+        throw new UnsupportedOperationException("Utility class");
+    }
+
     /**
      * Get the stack trace of an exception as a string.
      *

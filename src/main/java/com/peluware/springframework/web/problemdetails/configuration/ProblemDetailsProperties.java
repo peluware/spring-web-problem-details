@@ -1,6 +1,5 @@
 package com.peluware.springframework.web.problemdetails.configuration;
 
-import lombok.Data;
 import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.context.annotation.Role;
@@ -10,7 +9,6 @@ import org.springframework.context.annotation.Role;
  *
  * @see ProblemDetailsPropertiesAware
  */
-@Data
 @ConfigurationProperties(prefix = "spring.web.problemdetails")
 @Role(BeanDefinition.ROLE_INFRASTRUCTURE)
 public class ProblemDetailsProperties {
@@ -23,4 +21,20 @@ public class ProblemDetailsProperties {
      * If true, all stack traces will be sent to the client
      */
     private boolean sendStackTrace = false;
+
+    public boolean isAllErrors() {
+        return allErrors;
+    }
+
+    public void setAllErrors(boolean allErrors) {
+        this.allErrors = allErrors;
+    }
+
+    public boolean isSendStackTrace() {
+        return sendStackTrace;
+    }
+
+    public void setSendStackTrace(boolean sendStackTrace) {
+        this.sendStackTrace = sendStackTrace;
+    }
 }

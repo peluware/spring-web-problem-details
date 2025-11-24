@@ -1,7 +1,6 @@
 package com.peluware.springframework.web.problemdetails;
 
 import com.peluware.springframework.web.problemdetails.schemas.ValidationErrors;
-import lombok.Getter;
 
 /**
  * Exception thrown when a request fails validation and contains one or more validation errors.
@@ -10,7 +9,6 @@ import lombok.Getter;
  * issues that can be serialized and returned to clients, typically as part of a standardized
  * error response (e.g., using RFC 9457 Problem Details).
  */
-@Getter
 public class ValidationException extends RuntimeException {
 
     /**
@@ -38,5 +36,9 @@ public class ValidationException extends RuntimeException {
     public ValidationException(ValidationErrors validationErrors, String message) {
         super(message);
         this.validationErrors = validationErrors;
+    }
+
+    public ValidationErrors getValidationErrors() {
+        return validationErrors;
     }
 }

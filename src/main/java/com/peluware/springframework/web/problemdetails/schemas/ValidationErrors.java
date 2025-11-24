@@ -1,14 +1,12 @@
 package com.peluware.springframework.web.problemdetails.schemas;
 
 import com.peluware.springframework.web.problemdetails.ValidationException;
-import lombok.Data;
 
 import java.util.*;
 
 /**
  * Model used to represent validation errors.
  */
-@Data
 public class ValidationErrors {
 
     private final Set<Error> errors = new HashSet<>();
@@ -16,7 +14,8 @@ public class ValidationErrors {
 
     /**
      * Adds a new error for the given field if it already exists, otherwise creates a new one.
-     * @param field The field name
+     *
+     * @param field   The field name
      * @param message The error message
      */
     public void add(String field, String message) {
@@ -33,9 +32,19 @@ public class ValidationErrors {
         error.messages().add(message);
     }
 
+    public Set<Error> getErrors() {
+        return errors;
+    }
+
+
+    public Set<String> getGlobalErrors() {
+        return globalErrors;
+    }
+
     /**
      * Adds a new error for the given field and throws a {@link ValidationException}.
-     * @param field The field name
+     *
+     * @param field   The field name
      * @param message The error message
      */
     public void addThrow(String field, String message) {
@@ -45,6 +54,7 @@ public class ValidationErrors {
 
     /**
      * Adds a new global error.
+     *
      * @param message The error message
      */
     public void addGlobal(String message) {
@@ -53,6 +63,7 @@ public class ValidationErrors {
 
     /**
      * Adds a new error for the given field.
+     *
      * @return The error
      */
     public boolean hasErrors() {

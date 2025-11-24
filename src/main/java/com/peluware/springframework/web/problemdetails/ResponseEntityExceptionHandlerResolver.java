@@ -1,7 +1,8 @@
 package com.peluware.springframework.web.problemdetails;
 
-import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
+import org.jspecify.annotations.NonNull;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.boot.context.event.ApplicationStartedEvent;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.event.EventListener;
@@ -19,14 +20,19 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
-@Slf4j
-@RequiredArgsConstructor
+
 public class ResponseEntityExceptionHandlerResolver {
+
+    private static final Logger log = LoggerFactory.getLogger(ResponseEntityExceptionHandlerResolver.class);
 
     private final ApplicationContext applicationContext;
     private final Map<Class<?>, Object> controllerAdviceBeans = new HashMap<>();
     private final Map<Class<? extends Exception>, Method> exceptionHandlerMethods = new HashMap<>();
     private final Map<Class<? extends Exception>, Method> handlerMethodCache = new ConcurrentHashMap<>();
+
+    public ResponseEntityExceptionHandlerResolver(ApplicationContext applicationContext) {
+        this.applicationContext = applicationContext;
+    }
 
     @SuppressWarnings("unchecked")
     @EventListener(ApplicationStartedEvent.class)
@@ -72,7 +78,7 @@ public class ResponseEntityExceptionHandlerResolver {
     }
 
     @SuppressWarnings("unchecked")
-    public ResponseEntity<Object> handleException(Exception exception, WebRequest webRequest) throws NoSuchMethodException {
+    public ResponseEntity<@NonNull Object> handleException(Exception exception, WebRequest webRequest) throws NoSuchMethodException {
         var exceptionClass = exception.getClass();
         var handlerMethod = findHandlerMethod(exceptionClass);
 
@@ -82,7 +88,7 @@ public class ResponseEntityExceptionHandlerResolver {
 
         try {
             var controllerAdviceBean = controllerAdviceBeans.get(handlerMethod.getDeclaringClass());
-            return (ResponseEntity<Object>) handlerMethod.invoke(controllerAdviceBean, exception, webRequest);
+            return (ResponseEntity<@NonNull Object>) handlerMethod.invoke(controllerAdviceBean, exception, webRequest);
         } catch (Exception e) {
             throw new IllegalStateException("Error invoking exception handler method", e);
         }

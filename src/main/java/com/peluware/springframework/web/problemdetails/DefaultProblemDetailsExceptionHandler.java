@@ -7,15 +7,13 @@ import com.peluware.springframework.web.problemdetails.schemas.FieldMessage;
 import com.peluware.springframework.web.problemdetails.schemas.ValidationErrors;
 import com.peluware.springframework.web.problemdetails.utils.ExceptionUtils;
 import jakarta.validation.ConstraintViolationException;
-import lombok.AccessLevel;
-import lombok.Getter;
-import lombok.Setter;
-import lombok.extern.slf4j.Slf4j;
-import org.jetbrains.annotations.NotNull;
+import org.jspecify.annotations.NonNull;
+import org.jspecify.annotations.Nullable;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.context.MessageSource;
 import org.springframework.context.i18n.LocaleContextHolder;
 import org.springframework.http.*;
-import org.springframework.lang.Nullable;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.SpringSecurityMessageSource;
@@ -34,18 +32,20 @@ import static org.springframework.http.HttpStatus.*;
 /**
  * Default Exception Handler
  */
-@Slf4j
 @ControllerAdvice
-@Getter(AccessLevel.PROTECTED)
 public class DefaultProblemDetailsExceptionHandler extends ResponseEntityExceptionHandler implements ProblemDetailsPropertiesAware, ResponseEntityExceptionHandlerResolverAware {
 
-    private boolean allErrors;
-    private boolean sendStackTrace;
-    private ResponseEntityExceptionHandlerResolver resolver;
+    public static final Logger log = LoggerFactory.getLogger(DefaultProblemDetailsExceptionHandler.class);
 
-    @Setter
+    protected boolean allErrors;
+    protected boolean sendStackTrace;
+    protected ResponseEntityExceptionHandlerResolver resolver;
+
     private UncaughtProblemDetailCallback uncaughtProblemDetailCallback = UncaughtProblemDetailCallback.none();
 
+    public void setUncaughtProblemDetailCallback(UncaughtProblemDetailCallback uncaughtProblemDetailCallback) {
+        this.uncaughtProblemDetailCallback = uncaughtProblemDetailCallback;
+    }
 
     /**
      * Processor method for the {@link ProblemDetailsProperties} configuration.
@@ -54,6 +54,7 @@ public class DefaultProblemDetailsExceptionHandler extends ResponseEntityExcepti
      */
     @Override
     public void setProblemDetailsProperties(ProblemDetailsProperties properties) {
+
         log.debug("Setting error properties: {}", properties);
         this.allErrors = properties.isAllErrors();
         this.sendStackTrace = properties.isSendStackTrace();
@@ -71,7 +72,7 @@ public class DefaultProblemDetailsExceptionHandler extends ResponseEntityExcepti
      * @param messageSource message source to be used by this object
      */
     @Override
-    public void setMessageSource(@NotNull MessageSource messageSource) {
+    public void setMessageSource(@NonNull MessageSource messageSource) {
         log.debug("Setting message source: {}", messageSource);
         log.debug("Message source class: {}", messageSource.getClass());
         super.setMessageSource(messageSource);
@@ -86,7 +87,7 @@ public class DefaultProblemDetailsExceptionHandler extends ResponseEntityExcepti
      * @return response entity with the problem detail.
      */
     @ExceptionHandler(Exception.class)
-    public final ResponseEntity<Object> handleDefaultException(Exception ex, WebRequest request) {
+    public final ResponseEntity<@NonNull Object> handleDefaultException(Exception ex, WebRequest request) {
         var statusCode = INTERNAL_SERVER_ERROR;
         var body = allErrors
                 ? createProblemDetail(ex, statusCode, ex.getMessage(), "problemDetail.java.lang.Exception.message", new Object[]{ex.getMessage()}, request)
@@ -105,7 +106,7 @@ public class DefaultProblemDetailsExceptionHandler extends ResponseEntityExcepti
      * @return response entity with the problem detail.
      */
     @ExceptionHandler(RuntimeException.class)
-    public final ResponseEntity<Object> handleRuntimeException(RuntimeException ex, WebRequest request) throws NoSuchMethodException {
+    public final ResponseEntity<@NonNull Object> handleRuntimeException(RuntimeException ex, WebRequest request) throws NoSuchMethodException {
         if (RuntimeException.class.equals(ex.getClass())) {
             var cause = ex.getCause();
             if (cause != null) {
@@ -127,7 +128,7 @@ public class DefaultProblemDetailsExceptionHandler extends ResponseEntityExcepti
      * @return response entity with the problem detail.
      */
     @ExceptionHandler(ProblemDetailsException.class)
-    public final ResponseEntity<Object> handleProblemDetailsException(ProblemDetailsException ex, WebRequest ignored) {
+    public final ResponseEntity<@NonNull Object> handleProblemDetailsException(ProblemDetailsException ex, WebRequest ignored) {
         var problem = ex.getBody();
         precessException(ex, problem);
         return ResponseEntity.status(problem.getStatus()).headers(ex.getHeaders()).body(problem);
@@ -142,7 +143,7 @@ public class DefaultProblemDetailsExceptionHandler extends ResponseEntityExcepti
      * @return response entity with the problem detail.
      */
     @ExceptionHandler(ConstraintViolationException.class)
-    public ResponseEntity<Object> handleConstraintViolationException(ConstraintViolationException ex, WebRequest request) {
+    public ResponseEntity<@NonNull Object> handleConstraintViolationException(ConstraintViolationException ex, WebRequest request) {
         var defaultDetail = "One or more fields are invalid.";
         var body = createProblemDetail(ex, BAD_REQUEST, defaultDetail, null, null, request);
 
@@ -156,7 +157,7 @@ public class DefaultProblemDetailsExceptionHandler extends ResponseEntityExcepti
     }
 
     @ExceptionHandler(ValidationException.class)
-    public ResponseEntity<Object> handleValidationException(ValidationException ex, WebRequest request) {
+    public ResponseEntity<@NonNull Object> handleValidationException(ValidationException ex, WebRequest request) {
         var statusCode = BAD_REQUEST;
         var body = createProblemDetail(ex, statusCode, ex.getMessage(), null, null, request);
         var validationErrors = ex.getValidationErrors();
@@ -175,7 +176,7 @@ public class DefaultProblemDetailsExceptionHandler extends ResponseEntityExcepti
      * @see SpringSecurityMessageSource#getAccessor()
      */
     @ExceptionHandler(AuthenticationException.class)
-    public ResponseEntity<Object> handleAuthenticationException(AuthenticationException ex, WebRequest request) {
+    public ResponseEntity<@NonNull Object> handleAuthenticationException(AuthenticationException ex, WebRequest request) {
         return createDefaultResponseEntity(ex, new HttpHeaders(), UNAUTHORIZED, ex.getMessage(), null, null, request);
     }
 
@@ -190,7 +191,7 @@ public class DefaultProblemDetailsExceptionHandler extends ResponseEntityExcepti
      * @see SpringSecurityMessageSource#getAccessor()
      */
     @ExceptionHandler(AccessDeniedException.class)
-    public ResponseEntity<Object> handleAuthorizationDeniedException(AccessDeniedException ex, WebRequest request) {
+    public ResponseEntity<@NonNull Object> handleAuthorizationDeniedException(AccessDeniedException ex, WebRequest request) {
         return createDefaultResponseEntity(ex, new HttpHeaders(), FORBIDDEN, ex.getMessage(), null, null, request);
     }
 
@@ -207,7 +208,7 @@ public class DefaultProblemDetailsExceptionHandler extends ResponseEntityExcepti
      * @param request                the web request
      * @return a new {@link ProblemDetail} object
      */
-    protected ResponseEntity<Object> createDefaultResponseEntity(Exception ex, HttpHeaders headers, HttpStatusCode statusCode, String defaultDetail, @Nullable String detailMessageCode, Object[] detailMessageArguments, WebRequest request) {
+    protected ResponseEntity<@NonNull Object> createDefaultResponseEntity(Exception ex, HttpHeaders headers, HttpStatusCode statusCode, String defaultDetail, @Nullable String detailMessageCode, Object[] detailMessageArguments, WebRequest request) {
         var body = createProblemDetail(ex, statusCode, defaultDetail, detailMessageCode, detailMessageArguments, request);
         return createResponseEntity(ex, headers, statusCode, request, body);
     }
@@ -265,7 +266,7 @@ public class DefaultProblemDetailsExceptionHandler extends ResponseEntityExcepti
      * {@code null} when the response is already committed
      */
     @Override
-    protected final ResponseEntity<Object> handleExceptionInternal(@NotNull Exception ex, @Nullable Object body, @NotNull HttpHeaders headers, @NotNull HttpStatusCode statusCode, @NotNull WebRequest request) {
+    protected final ResponseEntity<@NonNull Object> handleExceptionInternal(@NonNull Exception ex, @Nullable Object body, @NonNull HttpHeaders headers, @NonNull HttpStatusCode statusCode, @NonNull WebRequest request) {
         var response = super.handleExceptionInternal(ex, body, headers, statusCode, request);
         precessException(ex, response != null ? response.getBody() : body);
         return response;
@@ -282,7 +283,7 @@ public class DefaultProblemDetailsExceptionHandler extends ResponseEntityExcepti
      * @param body       the body to use for the response
      * @return a {@code ResponseEntity} for the response to use
      */
-    protected final ResponseEntity<Object> createResponseEntity(@NotNull Exception ex, HttpHeaders headers, HttpStatusCode statusCode, WebRequest request, ProblemDetail body) {
+    protected final ResponseEntity<@NonNull Object> createResponseEntity(@NonNull Exception ex, HttpHeaders headers, HttpStatusCode statusCode, WebRequest request, ProblemDetail body) {
         precessException(ex, body);
         return createResponseEntity(body, headers, statusCode, request);
     }
@@ -310,7 +311,8 @@ public class DefaultProblemDetailsExceptionHandler extends ResponseEntityExcepti
      * @param ex   the exception
      * @param body the body
      */
-    private void precessException(Exception ex, Object body) {
+    private void precessException(Exception ex, @Nullable Object body) {
+        if (body == null) return;
         if (sendStackTrace && body instanceof ProblemDetail problemDetail) {
             problemDetail.setProperty("stackTrace", ExceptionUtils.getStackTrace(ex));
         }
