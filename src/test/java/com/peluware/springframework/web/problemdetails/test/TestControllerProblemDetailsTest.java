@@ -35,12 +35,6 @@ class TestControllerProblemDetailsTest {
     }
 
     @Test
-    void errorWithRuntimeException() throws Exception {
-        mockMvc.perform(get("/bad-request-runtime"))
-                .andExpect(status().isBadRequest());
-    }
-
-    @Test
     void errorWithExceptionByExtension() throws Exception {
         mockMvc.perform(get("/bad-request-by-extension"))
                 .andExpect(status().isBadRequest());

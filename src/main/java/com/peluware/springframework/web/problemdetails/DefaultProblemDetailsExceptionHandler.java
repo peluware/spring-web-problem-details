@@ -2,7 +2,6 @@ package com.peluware.springframework.web.problemdetails;
 
 import com.peluware.springframework.web.problemdetails.configuration.ProblemDetailsProperties;
 import com.peluware.springframework.web.problemdetails.configuration.ProblemDetailsPropertiesAware;
-import com.peluware.springframework.web.problemdetails.configuration.ResponseEntityExceptionHandlerResolverAware;
 import com.peluware.springframework.web.problemdetails.schemas.FieldMessage;
 import com.peluware.springframework.web.problemdetails.schemas.ValidationErrors;
 import com.peluware.springframework.web.problemdetails.utils.ExceptionUtils;
@@ -33,13 +32,12 @@ import static org.springframework.http.HttpStatus.*;
  * Default Exception Handler
  */
 @ControllerAdvice
-public class DefaultProblemDetailsExceptionHandler extends ResponseEntityExceptionHandler implements ProblemDetailsPropertiesAware, ResponseEntityExceptionHandlerResolverAware {
+public class DefaultProblemDetailsExceptionHandler extends ResponseEntityExceptionHandler implements ProblemDetailsPropertiesAware {
 
     public static final Logger log = LoggerFactory.getLogger(DefaultProblemDetailsExceptionHandler.class);
 
     protected boolean allErrors;
     protected boolean sendStackTrace;
-    protected ResponseEntityExceptionHandlerResolver resolver;
 
     private UncaughtProblemDetailCallback uncaughtProblemDetailCallback = UncaughtProblemDetailCallback.none();
 
@@ -58,12 +56,6 @@ public class DefaultProblemDetailsExceptionHandler extends ResponseEntityExcepti
         log.debug("Setting error properties: {}", properties);
         this.allErrors = properties.isAllErrors();
         this.sendStackTrace = properties.isSendStackTrace();
-    }
-
-    @Override
-    public void setResponseEntityExceptionHandlerResolver(ResponseEntityExceptionHandlerResolver resolver) {
-        log.debug("Setting response entity exception handler resolver: {}", resolver);
-        this.resolver = resolver;
     }
 
     /**
@@ -88,6 +80,13 @@ public class DefaultProblemDetailsExceptionHandler extends ResponseEntityExcepti
      */
     @ExceptionHandler(Exception.class)
     public final ResponseEntity<@NonNull Object> handleDefaultException(Exception ex, WebRequest request) {
+
+        if (ex instanceof ProblemDetailRepresentable pdr) {
+            var problemDetail = pdr.toProblemDetail(request);
+            precessException(ex, problemDetail);
+            return createResponseEntity(ex, new HttpHeaders(), HttpStatusCode.valueOf(problemDetail.getStatus()), request, problemDetail);
+        }
+
         var statusCode = INTERNAL_SERVER_ERROR;
         var body = allErrors
                 ? createProblemDetail(ex, statusCode, ex.getMessage(), "problemDetail.java.lang.Exception.message", new Object[]{ex.getMessage()}, request)
@@ -95,30 +94,6 @@ public class DefaultProblemDetailsExceptionHandler extends ResponseEntityExcepti
 
         uncaughtProblemDetailCallback.call(ex, body);
         return createResponseEntity(ex, new HttpHeaders(), statusCode, request, body);
-    }
-
-
-    /**
-     * Handler for {@link RuntimeException} exceptions.
-     *
-     * @param ex      the exception
-     * @param request the web request
-     * @return response entity with the problem detail.
-     */
-    @ExceptionHandler(RuntimeException.class)
-    public final ResponseEntity<@NonNull Object> handleRuntimeException(RuntimeException ex, WebRequest request) throws NoSuchMethodException {
-        if (RuntimeException.class.equals(ex.getClass())) {
-            var cause = ex.getCause();
-            if (cause != null) {
-                if (RuntimeException.class.equals(cause.getClass())) {
-                    return handleRuntimeException((RuntimeException) cause, request);
-                }
-                if (cause instanceof Exception exception) {
-                    return resolver.handleException(exception, request);
-                }
-            }
-        }
-        return handleDefaultException(ex, request);
     }
 
     /**

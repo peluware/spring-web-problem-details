@@ -1,6 +1,5 @@
 package com.peluware.springframework.web.problemdetails.configuration;
 
-import com.peluware.springframework.web.problemdetails.ResponseEntityExceptionHandlerResolver;
 import org.jspecify.annotations.NonNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -14,16 +13,15 @@ public class ProblemDetailsConfigurationPostProcessor implements BeanPostProcess
 
     private static final Logger log = LoggerFactory.getLogger(ProblemDetailsConfigurationPostProcessor.class);
     private final ProblemDetailsProperties properties;
-    private final ResponseEntityExceptionHandlerResolver resolver;
 
-    public ProblemDetailsConfigurationPostProcessor(ProblemDetailsProperties properties, ResponseEntityExceptionHandlerResolver resolver) {
+    public ProblemDetailsConfigurationPostProcessor(ProblemDetailsProperties properties) {
         this.properties = properties;
-        this.resolver = resolver;
     }
 
     /**
      * Process the bean before initialization.
-     * @param bean the new bean instance
+     *
+     * @param bean     the new bean instance
      * @param beanName the name of the bean
      * @return the bean instance to use, either the original or a wrapped one
      */
@@ -34,11 +32,6 @@ public class ProblemDetailsConfigurationPostProcessor implements BeanPostProcess
         if (bean instanceof ProblemDetailsPropertiesAware aware) {
             log.trace("Injecting ProblemDetailsProperties into bean {}", beanName);
             aware.setProblemDetailsProperties(properties);
-        }
-
-        if (bean instanceof ResponseEntityExceptionHandlerResolverAware aware) {
-            log.trace("Injecting ResponseEntityExceptionHandlerResolver into bean {}", beanName);
-            aware.setResponseEntityExceptionHandlerResolver(resolver);
         }
 
         return bean;

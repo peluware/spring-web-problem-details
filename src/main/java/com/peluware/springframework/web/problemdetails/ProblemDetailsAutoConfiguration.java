@@ -9,9 +9,9 @@ import org.springframework.boot.autoconfigure.AutoConfiguration;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnWebApplication;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
-import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Role;
+import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExceptionHandler;
 
 @AutoConfiguration
 @ConditionalOnWebApplication
@@ -23,20 +23,13 @@ public class ProblemDetailsAutoConfiguration {
 
     @Bean
     @Role(BeanDefinition.ROLE_INFRASTRUCTURE)
-    public ResponseEntityExceptionHandlerResolver responseEntityExceptionHandlerResolver(ApplicationContext context) {
-        log.debug("Creating ResponseEntityExceptionHandlerResolver");
-        return new ResponseEntityExceptionHandlerResolver(context);
+    public static ProblemDetailsConfigurationPostProcessor problemDetailsConfigurationPostProcessor(ProblemDetailsProperties properties) {
+        log.debug("Creating ProblemDetailsConfigurationPostProcessor with properties {}", properties);
+        return new ProblemDetailsConfigurationPostProcessor(properties);
     }
 
     @Bean
-    @Role(BeanDefinition.ROLE_INFRASTRUCTURE)
-    public static ProblemDetailsConfigurationPostProcessor problemDetailsConfigurationPostProcessor(ProblemDetailsProperties properties, ResponseEntityExceptionHandlerResolver resolver) {
-        log.debug("Creating ProblemDetailsConfigurationPostProcessor with properties {} and resolver {}", properties, resolver);
-        return new ProblemDetailsConfigurationPostProcessor(properties, resolver);
-    }
-
-    @Bean
-    @ConditionalOnMissingBean
+    @ConditionalOnMissingBean(ResponseEntityExceptionHandler.class)
     public DefaultProblemDetailsExceptionHandler defaultExceptionHandler() {
         log.debug("Creating default exception handler");
         return new DefaultProblemDetailsExceptionHandler();
