@@ -52,7 +52,6 @@ public class DefaultProblemDetailsExceptionHandler extends ResponseEntityExcepti
      */
     @Override
     public void setProblemDetailsProperties(ProblemDetailsProperties properties) {
-
         log.debug("Setting error properties: {}", properties);
         this.allErrors = properties.isAllErrors();
         this.sendStackTrace = properties.isSendStackTrace();
@@ -80,17 +79,10 @@ public class DefaultProblemDetailsExceptionHandler extends ResponseEntityExcepti
      */
     @ExceptionHandler(Exception.class)
     public final ResponseEntity<@NonNull Object> handleDefaultException(Exception ex, WebRequest request) {
-
-        if (ex instanceof ProblemDetailRepresentable pdr) {
-            var problemDetail = pdr.toProblemDetail(request);
-            precessException(ex, problemDetail);
-            return createResponseEntity(ex, new HttpHeaders(), HttpStatusCode.valueOf(problemDetail.getStatus()), request, problemDetail);
-        }
-
         var statusCode = INTERNAL_SERVER_ERROR;
         var body = allErrors
-                ? createProblemDetail(ex, statusCode, ex.getMessage(), "problemDetail.java.lang.Exception.message", new Object[]{ex.getMessage()}, request)
-                : createProblemDetail(ex, statusCode, "Internal Server Error", "problemDetail.java.lang.Exception", null, request);
+            ? createProblemDetail(ex, statusCode, ex.getMessage(), "problemDetail.java.lang.Exception.message", new Object[]{ex.getMessage()}, request)
+            : createProblemDetail(ex, statusCode, "Internal Server Error", "problemDetail.java.lang.Exception", null, request);
 
         uncaughtProblemDetailCallback.call(ex, body);
         return createResponseEntity(ex, new HttpHeaders(), statusCode, request, body);
@@ -271,13 +263,37 @@ public class DefaultProblemDetailsExceptionHandler extends ResponseEntityExcepti
      */
     protected void updateDefaultTittleAndType(Exception ex, ProblemDetail body) {
         var messageSource = getMessageSource();
-        var clazz = ex.getClass();
-        if (messageSource != null) {
-            var locale = LocaleContextHolder.getLocale();
-            body.setTitle(messageSource.getMessage(ErrorResponse.getDefaultTitleMessageCode(clazz), null, null, locale));
-            var type = messageSource.getMessage(ErrorResponse.getDefaultTypeMessageCode(clazz), null, null, locale);
-            if (type != null) body.setType(URI.create(type));
+        if (messageSource == null) {
+            return;
         }
+        var clazz = ex.getClass();
+        var locale = LocaleContextHolder.getLocale();
+
+        var title = messageSource.getMessage(ErrorResponse.getDefaultTitleMessageCode(clazz), null, null, locale);
+        if (title != null) {
+            body.setTitle(title);
+        }
+
+        var type = messageSource.getMessage(ErrorResponse.getDefaultTypeMessageCode(clazz), null, null, locale);
+        if (type != null) {
+            body.setType(URI.create(type));
+        }
+
+        var detail = messageSource.getMessage(ErrorResponse.getDefaultDetailMessageCode(clazz, null), null, null, locale);
+        if (detail != null) {
+            body.setDetail(detail);
+        }
+    }
+
+
+    @Override
+    protected @NonNull ProblemDetail createProblemDetail(@NonNull Exception ex, @NonNull HttpStatusCode status, @NonNull String defaultDetail, @Nullable String detailMessageCode, Object @Nullable [] detailMessageArguments, @NonNull WebRequest request) {
+        if (ex instanceof ProblemDetailRepresentable pdr) {
+            var problemDetail = pdr.toProblemDetail(request);
+            updateDefaultTittleAndType(ex, problemDetail);
+            return problemDetail;
+        }
+        return super.createProblemDetail(ex, status, defaultDetail, detailMessageCode, detailMessageArguments, request);
     }
 
     /**

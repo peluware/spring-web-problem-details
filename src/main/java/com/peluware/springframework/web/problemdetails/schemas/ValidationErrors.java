@@ -84,10 +84,8 @@ public class ValidationErrors {
      * Model used to represent a validation error for a specific field.
      */
     public record Error(String field, Set<String> messages) {
-
         private Error(String field) {
             this(field, new HashSet<>());
         }
-
     }
 }
